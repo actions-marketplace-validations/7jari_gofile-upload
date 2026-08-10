@@ -55,13 +55,6 @@ check_dependencies() {
     fi
 }
 
-# If the GitHub Action input "files" is set (via the environment variable INPUT_FILES),
-# then convert it to positional parameters.
-if [ -n "$INPUT_FILES" ]; then
-    # Using eval ensures that any spaces in the input are handled correctly.
-    eval set -- "$INPUT_FILES"
-fi
-
 if [[ "$#" -eq 0 ]]; then
     display_usage
     exit 1
@@ -70,7 +63,7 @@ fi
 check_dependencies
 
 # Retrieve a random GoFile server.
-SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers | map(.name) | .[]' | shuf -n 1)
+[ -z "$SERVER" ] && SERVER=$(curl -s https://api.gofile.io/servers | jq -r '.data.servers | map(.name) | .[]' | shuf -n 1)
 if [[ -z "$SERVER" || "$SERVER" == "null" ]]; then
     echo -e "${RED}Error: Could not retrieve GoFile server information.${NC}"
     exit 1
